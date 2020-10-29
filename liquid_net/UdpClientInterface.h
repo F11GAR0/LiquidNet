@@ -1,5 +1,6 @@
 #pragma once
 #include "main.h"
+#include "SocketLayer.h"
 
 class UdpClientInterface
 {

@@ -147,12 +147,14 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">main.h</PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="SocketLayer.cpp" />
     <ClCompile Include="UdpClient.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Buffer.h" />
     <ClInclude Include="ByteStream.h" />
     <ClInclude Include="main.h" />
+    <ClInclude Include="SocketLayer.h" />
     <ClInclude Include="UdpClient.h" />
     <ClInclude Include="UdpClientInterface.h" />
   </ItemGroup>

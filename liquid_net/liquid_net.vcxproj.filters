@@ -11,6 +11,9 @@
     <ClCompile Include="Buffer.cpp">
       <Filter>net</Filter>
     </ClCompile>
+    <ClCompile Include="SocketLayer.cpp">
+      <Filter>net</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h" />
@@ -24,6 +27,9 @@
       <Filter>net</Filter>
     </ClInclude>
     <ClInclude Include="Buffer.h">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="SocketLayer.h">
       <Filter>net</Filter>
     </ClInclude>
   </ItemGroup>
