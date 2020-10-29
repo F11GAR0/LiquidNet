@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="UdpClient.cpp">
+      <Filter>net</Filter>
+    </ClCompile>
+    <ClCompile Include="ByteStream.cpp">
+      <Filter>net</Filter>
+    </ClCompile>
+    <ClCompile Include="Buffer.cpp">
+      <Filter>net</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="main.h" />
+    <ClInclude Include="UdpClient.h">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="UdpClientInterface.h">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="ByteStream.h">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="Buffer.h">
+      <Filter>net</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="net">
+      <UniqueIdentifier>{d2a087fa-ec7c-4e07-9e59-6671c26e3fc6}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
