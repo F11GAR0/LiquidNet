@@ -1,7 +1,0 @@
-﻿  main.cpp
-C:\Users\Qwerty\source\repos\liquid_net\liquid_net\main.cpp(12,20): warning C4018: <: несоответствие типов со знаком и без знака
-  Buffer.cpp
-  ByteStream.cpp
-  UdpClient.cpp
-  Создание кода...
-  liquid_net.vcxproj -> C:\Users\Qwerty\source\repos\liquid_net\Debug\liquid_net.exe
