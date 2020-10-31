@@ -14,6 +14,10 @@
     <ClCompile Include="SocketLayer.cpp">
       <Filter>net</Filter>
     </ClCompile>
+    <ClCompile Include="Packet.cpp">
+      <Filter>net</Filter>
+    </ClCompile>
+    <ClCompile Include="PacketQueue.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h" />
@@ -32,6 +36,10 @@
     <ClInclude Include="SocketLayer.h">
       <Filter>net</Filter>
     </ClInclude>
+    <ClInclude Include="Packet.h">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="PacketQueue.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="net">

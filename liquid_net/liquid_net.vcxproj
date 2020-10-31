@@ -86,7 +86,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_WINSOCK_DEPRECATED_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>main.h</PrecompiledHeaderFile>
@@ -147,6 +147,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">main.h</PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="Packet.cpp" />
+    <ClCompile Include="PacketQueue.cpp" />
     <ClCompile Include="SocketLayer.cpp" />
     <ClCompile Include="UdpClient.cpp" />
   </ItemGroup>
@@ -154,6 +156,8 @@
     <ClInclude Include="Buffer.h" />
     <ClInclude Include="ByteStream.h" />
     <ClInclude Include="main.h" />
+    <ClInclude Include="Packet.h" />
+    <ClInclude Include="PacketQueue.h" />
     <ClInclude Include="SocketLayer.h" />
     <ClInclude Include="UdpClient.h" />
     <ClInclude Include="UdpClientInterface.h" />

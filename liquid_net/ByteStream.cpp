@@ -26,3 +26,8 @@ void ByteStream::Clear()
 {
 	m_Buffer->Clear();
 }
+
+unsigned int ByteStream::GetLength()
+{
+	return m_Buffer->GetLength();
+}

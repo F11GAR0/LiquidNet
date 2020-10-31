@@ -9,27 +9,14 @@ struct stTestStruct {
 };
 
 int main() {
-	struct stTestStruct st;
-	st.m_iVar = 21;
-	st.m_fVar = -0.27;
-	st.m_dVar = 74195034726.1;
-	st.m_iszLength = strlen("China");
-	st.m_szVar = (char*)malloc(st.m_iszLength);
-	strcpy(st.m_szVar, "China");
-
-	ByteStream bs;
-	bs.Write(st.m_iVar);
-	bs.Write(st.m_fVar);
-	bs.Write(st.m_dVar);
-	bs.Write(st.m_iszLength);
-	bs.Write(st.m_szVar, st.m_iszLength);
-
-	struct stTestStruct st2;
-	bs.Read(st2.m_iVar);
-	bs.Read(st2.m_fVar);
-	bs.Read(st2.m_dVar);
-	bs.Read(st2.m_iszLength);
-	bs.Read(st2.m_szVar, st2.m_iszLength);
-
+	SocketLayer* slayer = new SocketLayer();
+	SOCKET sock = slayer->CreateSocket(77772, NULL, 0);
+	PacketQueue<OrderedQueue> queue;
+	while (queue.GetCount() < 4) {
+		slayer->Recieve(sock, &queue);
+		Sleep(100);
+	}
+	closesocket(sock);
+	delete slayer;
 	return 0;
 }

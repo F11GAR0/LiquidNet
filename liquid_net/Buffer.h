@@ -63,11 +63,8 @@ public:
 	void Read(T& var, unsigned int position, unsigned int var_size = sizeof(var)) {
 		Read<T>(m_Buffer, m_uiLength, position, var, var_size);
 	}
-	void Clear() {
-		SAFE_FREE(m_Buffer);
-		m_uiLength = 0;
-		m_uiReserved = 0;
-	}
+	void Clear();
+	unsigned int GetLength();
 	~Buffer();
 	unsigned char* GetData(unsigned int *length);
 private:
@@ -77,6 +74,20 @@ private:
 	unsigned int m_uiLength;
 	unsigned int m_uiReserved;
 };
+
+template<class Appender, class Reader>
+inline void Buffer<Appender, Reader>::Clear()
+{
+	SAFE_FREE(m_Buffer);
+	m_uiLength = 0;
+	m_uiReserved = 0;
+}
+
+template<class Appender, class Reader>
+inline unsigned int Buffer<Appender, Reader>::GetLength()
+{
+	return m_uiLength;
+}
 
 template<class Appender, class Reader>
 inline Buffer<Appender, Reader>::~Buffer()

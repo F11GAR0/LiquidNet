@@ -14,6 +14,7 @@ public:
 	unsigned char* GetData(unsigned int* len);
 	void ResetReadPointer();
 	void Clear();
+	unsigned int GetLength();
 private:
 	Buffer<SafeAppender, SafeReader>* m_Buffer;
 	unsigned int m_uiReadPointer;

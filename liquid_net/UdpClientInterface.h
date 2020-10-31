@@ -1,5 +1,7 @@
 #pragma once
 #include "main.h"
+#include "Packet.h"
+#include "PacketQueue.h"
 #include "SocketLayer.h"
 
 class UdpClientInterface
