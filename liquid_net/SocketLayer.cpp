@@ -62,9 +62,10 @@ void SocketLayer::Send(SOCKET s, ByteStream* bs, unsigned int addr, unsigned sho
 	sa.sin_addr.s_addr = addr;
 	sa.sin_family = AF_INET;
 	unsigned int len = 0;
+	unsigned int res = 0;
 	unsigned char* data = bs->GetData(&len);
 	do
 	{
-		len = sendto(s, (char*)data, len, 0, (const sockaddr*)&sa, sizeof(struct sockaddr_in));
-	} while (len == 0);
+		res = sendto(s, (char*)data, len, 0, (const sockaddr*)&sa, sizeof(struct sockaddr_in));
+	} while (res == 0);
 }

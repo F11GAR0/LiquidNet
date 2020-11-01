@@ -17,7 +17,12 @@
     <ClCompile Include="Packet.cpp">
       <Filter>net</Filter>
     </ClCompile>
-    <ClCompile Include="PacketQueue.cpp" />
+    <ClCompile Include="DebugBuffer.cpp">
+      <Filter>net</Filter>
+    </ClCompile>
+    <ClCompile Include="PacketQueue.cpp">
+      <Filter>net</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h" />
@@ -39,7 +44,12 @@
     <ClInclude Include="Packet.h">
       <Filter>net</Filter>
     </ClInclude>
-    <ClInclude Include="PacketQueue.h" />
+    <ClInclude Include="DebugBuffer.h">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="PacketQueue.h">
+      <Filter>net</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="net">

@@ -6,14 +6,18 @@ class ByteStream
 {
 public:
 	ByteStream();
+	ByteStream(unsigned char* data, unsigned int data_size);
 	template <typename T>
 	ByteStream& Write(T data, unsigned int data_size = sizeof(T));
+	ByteStream& Write(unsigned char* data, unsigned int data_size);
 	template <typename T>
 	void Read(T& var, unsigned int var_size = sizeof(T));
+	void Read(unsigned char** var, unsigned int len);
 	virtual ~ByteStream();
 	unsigned char* GetData(unsigned int* len);
 	void ResetReadPointer();
 	void Clear();
+	ByteStream& Copy();
 	unsigned int GetLength();
 private:
 	Buffer<SafeAppender, SafeReader>* m_Buffer;

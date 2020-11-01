@@ -13,25 +13,28 @@ private:
 	list<Packet*> m_Queue;
 };
 
-template <class Queue>
-class PacketQueue : public Queue
+template <class Queue, class DebugBuffer = NullBuffer>
+class PacketQueue : public Queue, public DebugBuffer
 {
 public:
-	void Push(Packet p);
+	void Push(Packet* p);
 	Packet Pop();
 private:
 	using Queue::AddPacket;
 	using Queue::TakePacket;
+	using DebugBuffer::Send;
+	using DebugBuffer::SendByteStream;
 };
 
-template<class Queue>
-inline void PacketQueue<Queue>::Push(Packet p)
-{
-	AddPacket(&p);
-}
-
-template<class Queue>
-inline Packet PacketQueue<Queue>::Pop()
+template<class Queue, class DebugBuffer>
+inline Packet PacketQueue<Queue, DebugBuffer>::Pop()
 {
 	return *TakePacket();
+}
+
+template<class Queue, class DebugBuffer>
+inline void PacketQueue<Queue, DebugBuffer>::Push(Packet* p)
+{
+	SendByteStream(&p->GetData());
+	AddPacket(p);
 }

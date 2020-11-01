@@ -7,6 +7,24 @@ ByteStream::ByteStream()
 	m_uiReadPointer = 0;
 }
 
+ByteStream::ByteStream(unsigned char* data, unsigned int data_size)
+{
+	m_Buffer = new Buffer<SafeAppender, SafeReader>();
+	m_Buffer->Append(data, data_size);
+	m_uiReadPointer = 0;
+}
+
+ByteStream& ByteStream::Write(unsigned char* data, unsigned int data_size)
+{
+	m_Buffer->Append(data, data_size);
+	return *this;
+}
+
+void ByteStream::Read(unsigned char** var, unsigned int len)
+{
+	m_Buffer->Read(var, m_uiReadPointer, len);
+}
+
 ByteStream::~ByteStream()
 {
 	SAFE_DELETE(m_Buffer);
@@ -25,6 +43,14 @@ void ByteStream::ResetReadPointer()
 void ByteStream::Clear()
 {
 	m_Buffer->Clear();
+}
+
+ByteStream& ByteStream::Copy()
+{
+	unsigned int len = 0;
+	unsigned char* data = m_Buffer->GetData(&len);
+	ByteStream* bs = new ByteStream(data, len);
+	return *bs;
 }
 
 unsigned int ByteStream::GetLength()

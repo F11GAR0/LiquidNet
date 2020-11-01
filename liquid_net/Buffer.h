@@ -20,7 +20,7 @@ public:
 	unsigned int Append(unsigned char** buff, unsigned int buff_len, unsigned int reserved, const T& data, unsigned int position = -1, unsigned int data_size = sizeof(T)) {
 		unsigned int new_length = buff_len + data_size;
 		if (!*buff) {
-			*buff = (unsigned char*)malloc(sizeof(data));
+			*buff = (unsigned char*)malloc(data_size);
 			for (int i = 0, end = data_size, p = 0; i < end; i++) {
 				(*buff)[i] = ((unsigned char*)&data)[p++];
 			}
@@ -35,6 +35,23 @@ public:
 		}
 		return new_length;
 	}
+	unsigned int Append(unsigned char** buff, unsigned int buff_len, unsigned int reserved, unsigned char* data, unsigned int data_size) {
+		unsigned int new_length = buff_len + data_size;
+		if (!*buff) {
+			*buff = (unsigned char*)malloc(data_size);
+			for (int i = 0, end = data_size, p = 0; i < end; i++) {
+				(*buff)[i] = data[p++];
+			}
+			return new_length;
+		}
+		if (reserved - buff_len < data_size) {
+			*buff = (unsigned char*)SAFE_REALLOC(*buff, buff_len, new_length);
+		}
+		for (int i = buff_len, end = buff_len + data_size, p = 0; i < end; i++) {
+			(*buff)[i] = data[p++];
+		}
+		return new_length;
+	}
 };
 
 class SafeReader {
@@ -42,7 +59,16 @@ public:
 	template <typename T>
 	void Read(unsigned char* buff, unsigned int buff_len, unsigned int position, T& var, unsigned int var_size = sizeof(T)) {
 		if (position + var_size <= buff_len) {
-			var = *(T*)(buff + position);
+			for (int i = 0; i < var_size; i++) {
+				*(unsigned char*)((size_t)(void*)&var + i) = buff[position + i];
+			}
+		}
+	}
+	void Read(unsigned char* buff, unsigned int buff_len, unsigned int position, unsigned char** var, unsigned int var_size) {
+		if (position + var_size <= buff_len) {
+			for (int i = 0; i < var_size; i++) {
+				(*var)[i] = buff[position + i];
+			}
 		}
 	}
 };
@@ -59,9 +85,19 @@ public:
 		}
 		m_uiLength = out_length;
 	}
-	template<typename T>
+	void Append(unsigned char* data, unsigned int data_size) {
+		unsigned int out_length = Append(&m_Buffer, m_uiLength, m_uiReserved, data, data_size);
+		if (out_length > m_uiReserved) {
+			m_uiReserved = out_length;
+		}
+		m_uiLength = out_length;
+	}
+	template <typename T>
 	void Read(T& var, unsigned int position, unsigned int var_size = sizeof(var)) {
 		Read<T>(m_Buffer, m_uiLength, position, var, var_size);
+	}
+	void Read(unsigned char** var, unsigned int position, unsigned int var_size) {
+		Read(m_Buffer, m_uiLength, position, var, var_size);
 	}
 	void Clear();
 	unsigned int GetLength();
@@ -99,5 +135,7 @@ template<class Appender, class Reader>
 inline unsigned char* Buffer<Appender, Reader>::GetData(unsigned int *length)
 {
 	*length = m_uiLength;
+	unsigned char* ret = (unsigned char*)malloc(m_uiLength);
+	SAFE_MEMCPY(ret, m_Buffer, m_uiLength);
 	return m_Buffer;
 }
