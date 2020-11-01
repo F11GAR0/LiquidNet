@@ -9,7 +9,7 @@ SocketLayer::SocketLayer()
 #endif
 }
 
-SOCKET SocketLayer::CreateSocket(unsigned short port, const char* ip, unsigned int timeout)
+SOCKET SocketLayer::CreateSocket(unsigned short port, const char* ip, unsigned int timeout = DEFAULT_TIMEOUT)
 {
 	SOCKET ret = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 	unsigned long opt = 1;
@@ -18,6 +18,15 @@ SOCKET SocketLayer::CreateSocket(unsigned short port, const char* ip, unsigned i
         return INVALID_SOCKET;
 	}
 
+	opt = timeout;
+	if (setsockopt(ret, SOL_SOCKET, SO_SNDTIMEO, (char*)&opt, sizeof(long)) != 0) {
+		throw new std::exception("Cant set sock opt");
+		return INVALID_SOCKET;
+	}
+	if (setsockopt(ret, SOL_SOCKET, SO_RCVTIMEO, (char*)&opt, sizeof(long)) != 0) {
+		throw new std::exception("Cant set sock opt");
+		return INVALID_SOCKET;
+	}
 	unsigned long nonblocking = 1;
 	if (ioctlsocket(ret, FIONBIO, &nonblocking) != 0)
 	{

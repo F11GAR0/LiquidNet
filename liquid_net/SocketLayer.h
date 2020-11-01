@@ -2,6 +2,7 @@
 #include "main.h"
 
 #define INVALID_SOCKET (SOCKET)-1
+#define DEFAULT_TIMEOUT 120
 
 #ifdef WIN32 || WIN64
 #include <WinSock2.h>

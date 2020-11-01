@@ -10,6 +10,7 @@ public:
 	template <typename T>
 	ByteStream& Write(T data, unsigned int data_size = sizeof(T));
 	ByteStream& Write(unsigned char* data, unsigned int data_size);
+	ByteStream& Write(const char* data, unsigned int data_size);
 	template <typename T>
 	void Read(T& var, unsigned int var_size = sizeof(T));
 	void Read(unsigned char** var, unsigned int len);

@@ -20,6 +20,11 @@ ByteStream& ByteStream::Write(unsigned char* data, unsigned int data_size)
 	return *this;
 }
 
+ByteStream& ByteStream::Write(const char* data, unsigned int data_size)
+{
+	return Write((unsigned char*)data, data_size);
+}
+
 void ByteStream::Read(unsigned char** var, unsigned int len)
 {
 	m_Buffer->Read(var, m_uiReadPointer, len);
