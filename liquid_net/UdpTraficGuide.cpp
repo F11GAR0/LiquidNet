@@ -97,3 +97,15 @@ PacketQueue<OrderedQueue>* UdpTraficGuide::GetSendQueue()
 {
 	return m_SendQueue;
 }
+
+UdpTraficGuide::~UdpTraficGuide()
+{
+	if (m_bListenThread && m_bSendThread) {
+		m_bListenThread = false;
+		m_bSendThread = false;
+		TerminateThread(m_ListenThread, 0);
+		TerminateThread(m_SendThread, 0);
+		CloseHandle(m_ListenThread);
+		CloseHandle(m_SendThread);
+	}
+}

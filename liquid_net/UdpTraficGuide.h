@@ -31,6 +31,7 @@ public:
 	SOCKET GetSocket();
 	PacketQueue<OrderedQueue>* GetRecvQueue();
 	PacketQueue<OrderedQueue>* GetSendQueue();
+	~UdpTraficGuide();
 private:
 	PacketQueue<OrderedQueue>* m_RecieveQueue;
 	PacketQueue<OrderedQueue>* m_SendQueue;
