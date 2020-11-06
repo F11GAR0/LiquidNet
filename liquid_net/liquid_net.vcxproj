@@ -152,6 +152,7 @@
     <ClCompile Include="PacketQueue.cpp" />
     <ClCompile Include="SocketLayer.cpp" />
     <ClCompile Include="UdpClient.cpp" />
+    <ClCompile Include="UdpTraficGuide.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Buffer.h" />
@@ -163,6 +164,7 @@
     <ClInclude Include="SocketLayer.h" />
     <ClInclude Include="UdpClient.h" />
     <ClInclude Include="UdpClientInterface.h" />
+    <ClInclude Include="UdpTraficGuide.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

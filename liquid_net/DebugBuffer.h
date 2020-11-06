@@ -3,6 +3,8 @@
 #include <iostream>
 #include <string>
 
+std::string GetByteStreamStr(ByteStream* bs);
+
 class NullBuffer {
 public:
 	void Send(const std::string& message);

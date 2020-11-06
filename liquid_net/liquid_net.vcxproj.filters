@@ -23,6 +23,9 @@
     <ClCompile Include="PacketQueue.cpp">
       <Filter>net</Filter>
     </ClCompile>
+    <ClCompile Include="UdpTraficGuide.cpp">
+      <Filter>net</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h" />
@@ -48,6 +51,9 @@
       <Filter>net</Filter>
     </ClInclude>
     <ClInclude Include="PacketQueue.h">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="UdpTraficGuide.h">
       <Filter>net</Filter>
     </ClInclude>
   </ItemGroup>

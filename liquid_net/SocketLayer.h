@@ -5,11 +5,9 @@
 #define DEFAULT_TIMEOUT 120
 
 #ifdef WIN32 || WIN64
-#include <WinSock2.h>
+#include <Windows.h>
 #include <stdio.h>
 #include <time.h>
-#include <WinSock2.h>
-#include <WS2tcpip.h>
 #include <winsock.h>
 #include <stdlib.h>
 #pragma comment(lib, "ws2_32.lib")
@@ -31,25 +29,27 @@ class SocketLayer
 {
 public:
     SocketLayer();
+    ~SocketLayer();
 	//if ip is null - socket will be listen
 	SOCKET CreateSocket(unsigned short port, const char* ip, unsigned int timeout);
+    static void CloseSocket(SOCKET sock);
 	bool Connect(SOCKET s, const char* ip, unsigned short port);
 	template <class QueueType, class DebugBuffer = NullBuffer>
-	bool Recieve(SOCKET s, unsigned short port, PacketQueue<QueueType, DebugBuffer>* OUT queue);
+	bool Recieve(SOCKET s, PacketQueue<QueueType, DebugBuffer>* OUT queue, unsigned short port = -1);
 	void Send(SOCKET s, ByteStream* bs, unsigned int addr, unsigned short port);
+private:
+    unsigned short m_usPort;
 };
 
 template<class QueueType, class DebugBuffer>
-inline bool SocketLayer::Recieve(SOCKET s, unsigned short port, PacketQueue<QueueType, DebugBuffer>* OUT queue)
+inline bool SocketLayer::Recieve(SOCKET s, PacketQueue<QueueType, DebugBuffer>* OUT queue, unsigned short port)
 {
     int len;
     socklen_t size = sizeof(sockaddr_in);
-    char buf[128];
+    char buf[512];
     sockaddr_in cli;
     cli.sin_family = AF_INET;
-    cli.sin_addr.S_un.S_addr = INADDR_ANY;
-    cli.sin_port = htons(port);
-    len = recvfrom(s, buf, 128, 0, (sockaddr*)&cli, &size);
+    len = recvfrom(s, buf, 512, 0, (sockaddr*)&cli, &size);
     if (len != -1) {
         ByteStream bs;
         bs.Write((unsigned char*)buf, len);

@@ -12,12 +12,13 @@ public:
 	Packet* Copy();
 	void SetData(ByteStream* bs);
 	ByteStream& GetData() const;
-	void SetPacketId(unsigned short packet_id);
-	unsigned short GetPacketId() const;
+	void SetPacketId(unsigned char packet_id);
+	unsigned char GetPacketId() const;
 	void SetSenderInfo(unsigned long ip, unsigned short port);
+	std::pair<unsigned long, unsigned short> GetSenderInfo();
 	~Packet();
 private:
-	unsigned short m_usPacketId;
+	unsigned char m_bPacketId;
 	ByteStream* m_bsData;
 	unsigned long m_ulSender;
 	unsigned short m_usSenderPort;

@@ -1,17 +1,22 @@
 #include "main.h"
 
+UdpClient* g_Server;
+
+void OnPacketRecieve(Packet* p) {
+	std::cout << "recieved packet\n";
+	std::cout << GetByteStreamStr(&p->GetData());
+	//g_Server->Send(&p->GetData(), inet_addr("192.168.0.107"));
+}
+
 int main() {
-	SocketLayer* slayer = new SocketLayer();
-	SOCKET sock = slayer->CreateSocket(7773, nullptr, 0);
-	PacketQueue<OrderedQueue, StlBuffer> queue;
-
-	std::cout << "waitin to recieve" << std::endl;
-	while (queue.GetCount() < 4) {
-		slayer->Recieve(sock, 7773, &queue);
-	}
-	std::cout << "recieve end";
-
-	closesocket(sock);
-	delete slayer;
+	g_Server = new UdpClient(7772);
+	g_Server->Initialize("192.168.0.107", 7772, 100);
+	g_Server->RegisterRecvCallback(OnPacketRecieve);
+	ByteStream bs;
+	const char* str = "Houston, we've had a problem!";
+	bs.Write(str, strlen(str));
+	g_Server->Send(&bs);
+	std::cin.get();
+	delete g_Server;
 	return 0;
 }
