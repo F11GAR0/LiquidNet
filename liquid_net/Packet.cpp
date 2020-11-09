@@ -6,6 +6,7 @@ Packet::Packet()
 	m_bPacketId = 0;
 	m_ulSender = 0;
 	m_usSenderPort = 0;
+	m_bAbsolutePort = false;
 	m_bsData = new ByteStream();
 }
 
@@ -13,6 +14,7 @@ Packet::Packet(ByteStream* bs, unsigned long sender, unsigned short sender_port)
 {
 	bs->Read(m_bPacketId);
 	m_bsData = new ByteStream();
+	m_bAbsolutePort = false;
 	unsigned int data_len = bs->GetLength() - sizeof(unsigned char);
 	if (data_len > 0 && data_len != -1) {
 		unsigned char* data = (unsigned char*)malloc(data_len);
@@ -29,6 +31,7 @@ Packet* Packet::Copy()
 {
 	Packet* ret = new Packet();
 	
+	if (this->m_bAbsolutePort) ret->SetPortAbsolute();
 	ret->SetData(&m_bsData->Copy());
 	ret->SetPacketId(this->m_bPacketId);
 	ret->SetSenderInfo(this->m_ulSender, this->m_usSenderPort);
@@ -69,6 +72,16 @@ void Packet::SetSenderInfo(unsigned long ip, unsigned short port)
 {
 	m_ulSender = ip;
 	m_usSenderPort = port;
+}
+
+void Packet::SetPortAbsolute()
+{
+	m_bAbsolutePort = true;
+}
+
+bool Packet::IsPortAbsolute()
+{
+	return m_bAbsolutePort;
 }
 
 std::pair<unsigned long, unsigned short> Packet::GetSenderInfo()

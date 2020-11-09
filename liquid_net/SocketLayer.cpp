@@ -78,10 +78,10 @@ bool SocketLayer::Connect(SOCKET s, const char* ip, unsigned short port)
 	return !(connect(s, (struct sockaddr*)&sock_addr, sizeof(struct sockaddr)) != 0);
 }
 
-void SocketLayer::Send(SOCKET s, ByteStream* bs, unsigned int addr, unsigned short port)
+void SocketLayer::Send(SOCKET s, ByteStream* bs, unsigned long addr, unsigned short port, bool auto_htons)
 {
 	sockaddr_in sa;
-	sa.sin_port = htons(port);
+	sa.sin_port = auto_htons ? htons(port) : port;
 	sa.sin_addr.s_addr = addr;
 	sa.sin_family = AF_INET;
 	unsigned int len = 0;

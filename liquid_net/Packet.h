@@ -15,6 +15,8 @@ public:
 	void SetPacketId(unsigned char packet_id);
 	unsigned char GetPacketId() const;
 	void SetSenderInfo(unsigned long ip, unsigned short port);
+	void SetPortAbsolute();
+	bool IsPortAbsolute();
 	std::pair<unsigned long, unsigned short> GetSenderInfo();
 	~Packet();
 private:
@@ -22,5 +24,6 @@ private:
 	ByteStream* m_bsData;
 	unsigned long m_ulSender;
 	unsigned short m_usSenderPort;
+	bool m_bAbsolutePort;
 };
 

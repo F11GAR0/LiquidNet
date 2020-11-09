@@ -12,7 +12,8 @@ THREAD send_thread(LPVOID arg) {
 			unsigned int len = 0;
 			unsigned char *data = p.GetData().GetData(&len);
 			bs.Write(data, len);
-			self->GetSocketLayerInstance()->Send(self->GetSocket(), &bs, p.GetSenderInfo().first, p.GetSenderInfo().second);
+			SAFE_FREE(data);
+			self->GetSocketLayerInstance()->Send(self->GetSocket(), &bs, p.GetSenderInfo().first, p.GetSenderInfo().second, !p.IsPortAbsolute());
 		}
 		Sleep(10);
 	}
@@ -55,9 +56,11 @@ void UdpTraficGuide::RegisterRecvCallback(RecieveCallback recv_callback)
 	m_RecvCallback = recv_callback;
 }
 
-void UdpTraficGuide::Send(const char* ip, unsigned short port, ByteStream* bs)
+void UdpTraficGuide::SendTo(unsigned long ip, unsigned short port, bool absolute_port, ByteStream* bs)
 {
-	Packet* p = new Packet(bs, inet_addr(ip), port);
+	Packet* p = new Packet(bs, ip, port);
+	if (absolute_port)
+		p->SetPortAbsolute();
 	// need mutex here
 	m_SendQueue->Push(p->Copy());
 	delete p;
@@ -99,7 +102,7 @@ PacketQueue<OrderedQueue>* UdpTraficGuide::GetSendQueue()
 }
 
 UdpTraficGuide::~UdpTraficGuide()
-{
+{	
 	if (m_bListenThread && m_bSendThread) {
 		m_bListenThread = false;
 		m_bSendThread = false;
@@ -108,4 +111,5 @@ UdpTraficGuide::~UdpTraficGuide()
 		CloseHandle(m_ListenThread);
 		CloseHandle(m_SendThread);
 	}
+	SocketLayer::CloseSocket(m_Socket);
 }

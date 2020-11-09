@@ -9,7 +9,7 @@ class UdpClientInterface
 {
 public:
 	virtual bool Connect(const char* ip, unsigned int timeout) = 0;
-	virtual void Send(ByteStream* bs, unsigned long addr) = 0;
+	virtual void Send(ByteStream* bs, unsigned long addr, unsigned short remote_port) = 0;
 protected:
 	virtual ~UdpClientInterface() {}
 };

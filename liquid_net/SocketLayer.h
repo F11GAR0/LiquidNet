@@ -36,7 +36,7 @@ public:
 	bool Connect(SOCKET s, const char* ip, unsigned short port);
 	template <class QueueType, class DebugBuffer = NullBuffer>
 	bool Recieve(SOCKET s, PacketQueue<QueueType, DebugBuffer>* OUT queue, unsigned short port = -1);
-	void Send(SOCKET s, ByteStream* bs, unsigned int addr, unsigned short port);
+	void Send(SOCKET s, ByteStream* bs, unsigned long addr, unsigned short port, bool auto_htons = true);
 private:
     unsigned short m_usPort;
 };

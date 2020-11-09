@@ -23,7 +23,7 @@ public:
 	UdpTraficGuide() : m_RecieveQueue(new PacketQueue<OrderedQueue>), m_SendQueue(new PacketQueue<OrderedQueue>) {}
 	void Initialize(const char* ip, unsigned short port, unsigned int timeout);
 	void RegisterRecvCallback(RecieveCallback recv_callback);
-	void Send(const char* ip, unsigned short port, ByteStream* bs);
+	void SendTo(unsigned long ip, unsigned short port, bool absolute_port, ByteStream* bs);
 	void CallbackRecieve(Packet* p);
 	unsigned long GetDestAddr();
 	SocketLayer* GetSocketLayerInstance();
