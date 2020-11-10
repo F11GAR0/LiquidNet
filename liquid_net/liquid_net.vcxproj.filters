@@ -26,6 +26,12 @@
     <ClCompile Include="UdpTraficGuide.cpp">
       <Filter>net</Filter>
     </ClCompile>
+    <ClCompile Include="MiscFunctions.cpp">
+      <Filter>net</Filter>
+    </ClCompile>
+    <ClCompile Include="CriticalSection.cpp">
+      <Filter>net</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h" />
@@ -54,6 +60,15 @@
       <Filter>net</Filter>
     </ClInclude>
     <ClInclude Include="UdpTraficGuide.h">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="SystemPacketEnumerations.h">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="MiscFunctions.h">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="CriticalSection.h">
       <Filter>net</Filter>
     </ClInclude>
   </ItemGroup>

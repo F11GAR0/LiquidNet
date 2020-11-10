@@ -14,6 +14,7 @@ public:
 	template <typename T>
 	void Read(T& var, unsigned int var_size = sizeof(T));
 	void Read(unsigned char** var, unsigned int len);
+	void Read(unsigned char* var, unsigned int len);
 	virtual ~ByteStream();
 	unsigned char* GetData(unsigned int* len);
 	void ResetReadPointer();

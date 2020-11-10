@@ -68,6 +68,11 @@ unsigned char Packet::GetPacketId() const
 	return m_bPacketId;
 }
 
+size_t Packet::GetSenderHash()
+{
+	return m_usSenderPort * (m_usSenderPort >> 2) % m_ulSender;
+}
+
 void Packet::SetSenderInfo(unsigned long ip, unsigned short port)
 {
 	m_ulSender = ip;

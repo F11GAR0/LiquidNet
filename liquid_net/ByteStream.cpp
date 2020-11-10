@@ -30,6 +30,11 @@ void ByteStream::Read(unsigned char** var, unsigned int len)
 	m_Buffer->Read(var, m_uiReadPointer, len);
 }
 
+void ByteStream::Read(unsigned char* var, unsigned int len)
+{
+	m_Buffer->Read(var, m_uiReadPointer, len);
+}
+
 ByteStream::~ByteStream()
 {
 	SAFE_DELETE(m_Buffer);

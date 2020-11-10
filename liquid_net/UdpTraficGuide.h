@@ -3,6 +3,11 @@
 #include "Packet.h"
 #include "PacketQueue.h"
 #include "SocketLayer.h"
+#include "CriticalSection.h"
+#include <map>
+#include <functional>
+
+#define CLIENT_HASH -1
 
 #ifdef WIN32 || WIN64
 #define THREAD DWORD WINAPI
@@ -15,7 +20,19 @@
 #define THREADHANDLE	pthread_t
 #endif
 
-typedef void (*RecieveCallback)(Packet*);
+struct RCAData {
+	bool initialized;
+	unsigned long long public_num1;
+	unsigned long long public_num2;
+	unsigned long long private_key;
+	unsigned long long endkey;
+};
+
+class UdpTraficGuide;
+
+typedef void (*RecieveCallback)(UdpTraficGuide*, Packet**);
+
+void TransformBs(ByteStream* bs, unsigned long long key);
 
 class UdpTraficGuide
 {
@@ -24,14 +41,20 @@ public:
 	void Initialize(const char* ip, unsigned short port, unsigned int timeout);
 	void RegisterRecvCallback(RecieveCallback recv_callback);
 	void SendTo(unsigned long ip, unsigned short port, bool absolute_port, ByteStream* bs);
-	void CallbackRecieve(Packet* p);
+	void CallbackRecieve(UdpTraficGuide* self, Packet** p);
+	bool IsRecieveCallbackRegistrated();
 	unsigned long GetDestAddr();
 	SocketLayer* GetSocketLayerInstance();
 	std::pair<bool*, bool*> GetThreadStates();
 	SOCKET GetSocket();
 	PacketQueue<OrderedQueue>* GetRecvQueue();
 	PacketQueue<OrderedQueue>* GetSendQueue();
+	std::map < size_t, RCAData >* GetRCAMap();
+	bool IsInitializedSecurity(size_t client);
+	RCAData GetSecurityInfo(size_t client);
 	~UdpTraficGuide();
+	CriticalSection GetListenListSection();
+	CriticalSection GetSendListSection();
 private:
 	PacketQueue<OrderedQueue>* m_RecieveQueue;
 	PacketQueue<OrderedQueue>* m_SendQueue;
@@ -43,5 +66,10 @@ private:
 	THREADHANDLE m_SendThread;
 	bool m_bListenThread;
 	bool m_bSendThread;
+	//Cryptography
+	std::map < size_t, RCAData >* m_RCA;
+	bool m_bIsClient;
+	CriticalSection m_ListenListSection;
+	CriticalSection m_SendListSection;
 };
 

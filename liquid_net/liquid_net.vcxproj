@@ -86,7 +86,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_WINSOCK_DEPRECATED_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>main.h</PrecompiledHeaderFile>
@@ -143,11 +143,13 @@
   <ItemGroup>
     <ClCompile Include="Buffer.cpp" />
     <ClCompile Include="ByteStream.cpp" />
+    <ClCompile Include="CriticalSection.cpp" />
     <ClCompile Include="DebugBuffer.cpp" />
     <ClCompile Include="main.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">main.h</PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="MiscFunctions.cpp" />
     <ClCompile Include="Packet.cpp" />
     <ClCompile Include="PacketQueue.cpp" />
     <ClCompile Include="SocketLayer.cpp" />
@@ -157,11 +159,14 @@
   <ItemGroup>
     <ClInclude Include="Buffer.h" />
     <ClInclude Include="ByteStream.h" />
+    <ClInclude Include="CriticalSection.h" />
     <ClInclude Include="DebugBuffer.h" />
     <ClInclude Include="main.h" />
+    <ClInclude Include="MiscFunctions.h" />
     <ClInclude Include="Packet.h" />
     <ClInclude Include="PacketQueue.h" />
     <ClInclude Include="SocketLayer.h" />
+    <ClInclude Include="SystemPacketEnumerations.h" />
     <ClInclude Include="UdpClient.h" />
     <ClInclude Include="UdpClientInterface.h" />
     <ClInclude Include="UdpTraficGuide.h" />

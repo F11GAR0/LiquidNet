@@ -14,6 +14,7 @@ public:
 	ByteStream& GetData() const;
 	void SetPacketId(unsigned char packet_id);
 	unsigned char GetPacketId() const;
+	size_t GetSenderHash();
 	void SetSenderInfo(unsigned long ip, unsigned short port);
 	void SetPortAbsolute();
 	bool IsPortAbsolute();

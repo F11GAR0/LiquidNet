@@ -1,24 +1,46 @@
 #include "main.h"
+#include "SystemPacketEnumerations.h"
 
 UdpClient* g_Server;
 
-void OnClientPacketRecieve(Packet* p) {
-	std::cout << "recieved packet\n";
-	std::cout << GetByteStreamStr(&p->GetData());
-}
-void OnServerPacketRecieve(Packet* p) {
-	std::cout << "recieved packet\n";
-	std::cout << GetByteStreamStr(&p->GetData());
-
-	//echo message
-	ByteStream bs;
-	bs.Write((BYTE)p->GetPacketId());
-	unsigned int len = 0;
-	unsigned char* data = p->GetData().GetData(&len);
-	bs.Write(data, len);
-	SAFE_FREE(data);
-
-	g_Server->Send(&bs, p->GetSenderInfo().first, p->GetSenderInfo().second);
+void Recv() {
+	while (true) {
+		Packet* p = g_Server->Recieve();
+		if (p) {
+			switch (p->GetPacketId()) {
+				case eSystemLocalPacket::ID_CONNECTED:
+				{
+					stConnectedUserInfo inf;
+					p->GetData().Read((BYTE*)&inf, sizeof(stConnectedUserInfo));
+					std::cout << "Connected new user! IP: " << inf.ip << " Remote port: " << inf.remote_port << std::endl;
+					break;
+				}
+				case eSystemLocalPacket::ID_DISCONNECTED:
+				{
+					stConnectedUserInfo inf;
+					p->GetData().Read((BYTE*)&inf, sizeof(stConnectedUserInfo));
+					std::cout << "User disconnected! IP: " << inf.ip << " Remote port: " << inf.remote_port << std::endl;
+					break;
+				}
+				case ePacketEnumerations::ID_MESSAGE: {
+					unsigned int len;
+					auto bs = p->GetData();
+					bs.Read(len);
+					char* text = (char*)malloc(len + 1);
+					bs.Read((unsigned char*)text, len);
+					text[len] = '\0';
+					std::cout << "Got text: " << text << std::endl;
+					break;
+				}
+				default:
+					std::cout << "Unknown packet: " << (int)p->GetPacketId() << std::endl;
+					std::cout << GetByteStreamStr(&p->GetData());
+					break;
+			}
+		}
+		SAFE_DELETE(p);
+		Sleep(1);
+	}
 }
 
 int main() {
@@ -28,8 +50,8 @@ int main() {
 	if (cli_srv_flag) {
 		std::cout << "Started server\n";
 		g_Server = new UdpClient(7772);
-		g_Server->Initialize(NULL, 7772, 100);
-		g_Server->RegisterRecvCallback(OnServerPacketRecieve);
+		g_Server->Listen(100);
+		Recv();
 	}
 	else {
 		std::cout << "Started client\n";
@@ -41,10 +63,10 @@ int main() {
 			system("pause");
 			return 0;
 		}
-		g_Server->RegisterRecvCallback(OnClientPacketRecieve);
+		//send test message
 		ByteStream bs;
 		const char* str = "Houston, we've had a problem!";
-		bs.Write((BYTE)0).Write(str, strlen(str));
+		bs.Write((BYTE)ePacketEnumerations::ID_MESSAGE).Write(strlen(str)).Write(str, strlen(str));
 		g_Server->Send(&bs);
 	}
 	

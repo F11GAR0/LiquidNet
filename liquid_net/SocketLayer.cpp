@@ -78,6 +78,22 @@ bool SocketLayer::Connect(SOCKET s, const char* ip, unsigned short port)
 	return !(connect(s, (struct sockaddr*)&sock_addr, sizeof(struct sockaddr)) != 0);
 }
 
+Packet* SocketLayer::Recieve(SOCKET s)
+{
+	int len;
+	socklen_t size = sizeof(sockaddr_in);
+	char buf[512];
+	sockaddr_in cli;
+	cli.sin_family = AF_INET;
+	len = recvfrom(s, buf, 512, 0, (sockaddr*)&cli, &size);
+	if (len != -1) {
+		ByteStream bs;
+		bs.Write((unsigned char*)buf, len);
+		return new Packet(&bs, cli.sin_addr.S_un.S_addr, cli.sin_port);
+	}
+	return nullptr;
+}
+
 void SocketLayer::Send(SOCKET s, ByteStream* bs, unsigned long addr, unsigned short port, bool auto_htons)
 {
 	sockaddr_in sa;

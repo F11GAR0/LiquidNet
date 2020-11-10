@@ -1,8 +1,8 @@
 #pragma once
 #include "main.h"
 
-#define SAFE_FREE(x) if(x != NULL) free(x)
-#define SAFE_DELETE(x) if(x != NULL) delete x
+#define SAFE_FREE(x) if(x != NULL) free(x) ; x = NULL
+#define SAFE_DELETE(x) if(x != NULL) delete x; x = NULL
 #define SAFE_MEMCPY(dest, src, size) if(dest && src) memcpy(dest, src, size)
 
 void* safe_realloc(void* obj, int obj_size, int dest_size);
@@ -71,6 +71,13 @@ public:
 			}
 		}
 	}
+	void Read(unsigned char* buff, unsigned int buff_len, unsigned int position, unsigned char* var, unsigned int var_size) {
+		if (position + var_size <= buff_len) {
+			for (int i = 0; i < var_size; i++) {
+				var[i] = buff[position + i];
+			}
+		}
+	}
 };
 
 template<class Appender, class Reader>
@@ -97,6 +104,9 @@ public:
 		Read<T>(m_Buffer, m_uiLength, position, var, var_size);
 	}
 	void Read(unsigned char** var, unsigned int position, unsigned int var_size) {
+		Read(m_Buffer, m_uiLength, position, var, var_size);
+	}
+	void Read(unsigned char* var, unsigned int position, unsigned int var_size) {
 		Read(m_Buffer, m_uiLength, position, var, var_size);
 	}
 	void Clear();
