@@ -2,11 +2,13 @@
 #include "UdpTraficGuide.h"
 
 void TransformBs(ByteStream* bs, unsigned long long key) {
+#ifdef SECUTIRY
 	unsigned int len = 0;
 	unsigned char *data = bs->GetData(&len);
 	for (int i = 0; i < len; i++) {
 		data[i] ^= key;
 	}
+#endif
 }
 
 THREAD send_thread(LPVOID arg) {

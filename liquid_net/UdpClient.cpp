@@ -35,6 +35,7 @@ bool UdpClient::Connect(const char* ip, unsigned int timeout) {
 			switch (p->GetPacketId()) {
 			case eSystemServerPacket::ID_ACCEPT_CONNECT:
 			{
+#ifdef SECURITY
 				m_ClientRCAData.public_num1 = gen_prime(rand() % 10 + 45, rand() % 30 + 55);
 				m_ClientRCAData.public_num2 = gen_prime(3, rand() % 30 + 15);
 				m_ClientRCAData.private_key = rand() % 10 + 3;
@@ -45,7 +46,15 @@ bool UdpClient::Connect(const char* ip, unsigned int timeout) {
 				bs.Write((unsigned long long)long_pow(m_ClientRCAData.public_num2, m_ClientRCAData.private_key) % m_ClientRCAData.public_num1);
 				Send(&bs);
 				break;
+#else
+				this->GetRCAMap()->insert(std::pair<size_t, RCAData>(CLIENT_HASH, m_ClientRCAData));
+				m_ClientRCAData.endkey = -1;
+				m_ClientRCAData.initialized = true;
+				delete p;
+				return true;
+#endif
 			}
+#ifdef SECURITY
 			case eSystemServerPacket::ID_RSA_PUBLIC_KEY: {
 				unsigned long long public_key;
 				p->GetData().Read(public_key);
@@ -59,10 +68,11 @@ bool UdpClient::Connect(const char* ip, unsigned int timeout) {
 				delete p;
 				return true;
 			}
+#endif
 			case eSystemServerPacket::ID_DENY_CONNECT: // what a shame(((
 				delete p;
 				return false;
-			}	
+			}
 			delete p; //deallocate...
 		}
 	}
@@ -90,14 +100,32 @@ Packet* UdpClient::Recieve()
 void RSASrvCallback(UdpTraficGuide* self, Packet** packet) {
 	Packet* p = *packet;
 	switch (p->GetPacketId()) {
+
 	case eSystemClientPacket::ID_REQUEST_CONNECT:
 		if (self->GetRCAMap()->find(p->GetSenderHash()) == self->GetRCAMap()->end()) {
 			//does not exist
 			self->GetRCAMap()->insert(std::pair<size_t, RCAData>(p->GetSenderHash(), RCAData()));
+#ifdef SECURITY
 			self->GetRCAMap()->at(p->GetSenderHash()).initialized = false;
 			ByteStream bs;
 			bs.Write((BYTE)eSystemServerPacket::ID_ACCEPT_CONNECT);
 			self->SendTo(p->GetSenderInfo().first, p->GetSenderInfo().second, true, &bs);
+#else
+			ByteStream bs_accept;
+			bs_accept.Write((BYTE)eSystemServerPacket::ID_ACCEPT_CONNECT); //all good, accept connect
+			self->SendTo(p->GetSenderInfo().first, p->GetSenderInfo().second, true, &bs_accept);
+
+			self->GetRCAMap()->at(p->GetSenderHash()).initialized = true;
+			ByteStream bs;
+			bs.Write((BYTE)eSystemLocalPacket::ID_CONNECTED);
+			stConnectedUserInfo inf;
+			inf.ip = p->GetSenderInfo().first;
+			inf.remote_port = p->GetSenderInfo().second;
+			bs.Write((BYTE*)&inf, sizeof(stConnectedUserInfo));
+			SAFE_DELETE(*packet);
+			*packet = new Packet(&bs, p->GetSenderInfo().first, p->GetSenderInfo().second); //local sync
+			break;
+#endif
 		}
 		else {
 			//not allowed
@@ -107,6 +135,7 @@ void RSASrvCallback(UdpTraficGuide* self, Packet** packet) {
 		}
 		SAFE_DELETE(*packet);
 		break;
+#ifdef SECURITY
 	case eSystemClientPacket::ID_RSA_PUBLIC_NUMBERS:
 		if (self->GetRCAMap()->find(p->GetSenderHash()) != self->GetRCAMap()->end()) {
 			unsigned long long n1, n2, clipublic;
@@ -143,6 +172,7 @@ void RSASrvCallback(UdpTraficGuide* self, Packet** packet) {
 			bs.Write((BYTE*)&inf, sizeof(stConnectedUserInfo));
 			SAFE_DELETE(*packet);
 			*packet = new Packet(&bs, p->GetSenderInfo().first, p->GetSenderInfo().second);
+			break;
 		}
 		else {
 			//meh...
@@ -152,6 +182,7 @@ void RSASrvCallback(UdpTraficGuide* self, Packet** packet) {
 			SAFE_DELETE(*packet);
 		}
 		break;
+#endif
 	case eSystemClientPacket::ID_DISCONNECT:
 		if (self->GetRCAMap()->find(p->GetSenderHash()) != self->GetRCAMap()->end()) {
 			ByteStream bs;
