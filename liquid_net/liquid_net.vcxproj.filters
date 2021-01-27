@@ -8,9 +8,6 @@
     <ClCompile Include="ByteStream.cpp">
       <Filter>net</Filter>
     </ClCompile>
-    <ClCompile Include="Buffer.cpp">
-      <Filter>net</Filter>
-    </ClCompile>
     <ClCompile Include="SocketLayer.cpp">
       <Filter>net</Filter>
     </ClCompile>
@@ -32,6 +29,9 @@
     <ClCompile Include="CriticalSection.cpp">
       <Filter>net</Filter>
     </ClCompile>
+    <ClCompile Include="BigInt.cpp">
+      <Filter>net</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h" />
@@ -42,9 +42,6 @@
       <Filter>net</Filter>
     </ClInclude>
     <ClInclude Include="ByteStream.h">
-      <Filter>net</Filter>
-    </ClInclude>
-    <ClInclude Include="Buffer.h">
       <Filter>net</Filter>
     </ClInclude>
     <ClInclude Include="SocketLayer.h">
@@ -69,6 +66,9 @@
       <Filter>net</Filter>
     </ClInclude>
     <ClInclude Include="CriticalSection.h">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="BigInt.h">
       <Filter>net</Filter>
     </ClInclude>
   </ItemGroup>

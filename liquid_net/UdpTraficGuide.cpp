@@ -1,12 +1,12 @@
 #include "main.h"
 #include "UdpTraficGuide.h"
 
-void TransformBs(ByteStream* bs, unsigned long long key) {
-#ifdef SECUTIRY
+void TransformBs(ByteStream* bs, BigInt key) {
+#ifdef SECURITY
 	unsigned int len = 0;
 	unsigned char *data = bs->GetData(&len);
 	for (int i = 0; i < len; i++) {
-		data[i] ^= key;
+		data[i] ^= key.to_int();
 	}
 #endif
 }
@@ -26,7 +26,7 @@ THREAD send_thread(LPVOID arg) {
 			bs.Write(data, len);
 			SAFE_FREE(data);
 			if(self->IsInitializedSecurity(p.GetSenderHash()))
-				TransformBs(&bs, self->GetSecurityInfo(p.GetSenderHash()).endkey);
+				TransformBs(&bs, self->GetSecurityInfo(p.GetSenderHash()).end_key);
 			self->GetSocketLayerInstance()->Send(self->GetSocket(), &bs, p.GetSenderInfo().first, p.GetSenderInfo().second, !p.IsPortAbsolute());
 		}
 		Sleep(10);
@@ -47,7 +47,7 @@ THREAD listen_thread(LPVOID arg) {
 				unsigned int len = 0;
 				unsigned char* data = p->GetData().GetData(&len);
 				bs.Write(data, len);
-				TransformBs(&bs, self->GetSecurityInfo(p->GetSenderHash()).endkey);
+				TransformBs(&bs, self->GetSecurityInfo(p->GetSenderHash()).end_key);
 				Packet* t = new Packet(&bs, p->GetSenderInfo().first, p->GetSenderInfo().second);
 				if (self->IsRecieveCallbackRegistrated()) { //system packets
 					self->CallbackRecieve(self, &t);

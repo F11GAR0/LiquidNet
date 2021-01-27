@@ -1,6 +1,8 @@
 #pragma once
 #include <iostream>
-//#define SECURITY
+#define SECURITY
+#include <Windows.h>
+#include "BigInt.h"
 #include "ByteStream.h"
 #include "DebugBuffer.h"
 #include "UdpTraficGuide.h"

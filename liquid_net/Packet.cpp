@@ -7,19 +7,17 @@ Packet::Packet()
 	m_ulSender = 0;
 	m_usSenderPort = 0;
 	m_bAbsolutePort = false;
-	m_bsData = new ByteStream();
 }
 
 Packet::Packet(ByteStream* bs, unsigned long sender, unsigned short sender_port)
 {
 	bs->Read(m_bPacketId);
-	m_bsData = new ByteStream();
 	m_bAbsolutePort = false;
 	unsigned int data_len = bs->GetLength() - sizeof(unsigned char);
 	if (data_len > 0 && data_len != -1) {
 		unsigned char* data = (unsigned char*)malloc(data_len);
-		bs->Read(&data, data_len);
-		m_bsData->Write(data, data_len);
+		bs->Read(data, data_len);
+		m_bsData.Write(data, data_len);
 		SAFE_FREE(data);
 	}
 	bs->ResetReadPointer();
@@ -32,7 +30,7 @@ Packet* Packet::Copy()
 	Packet* ret = new Packet();
 	
 	if (this->m_bAbsolutePort) ret->SetPortAbsolute();
-	ret->SetData(&m_bsData->Copy());
+	ret->SetData(&m_bsData.Copy());
 	ret->SetPacketId(this->m_bPacketId);
 	ret->SetSenderInfo(this->m_ulSender, this->m_usSenderPort);
 
@@ -41,21 +39,20 @@ Packet* Packet::Copy()
 
 Packet::~Packet()
 {
-	SAFE_DELETE(m_bsData);
+//
 }
 
 void Packet::SetData(ByteStream* bs)
 {
-	SAFE_DELETE(m_bsData);
-	m_bsData = new ByteStream();
+	m_bsData.Clear();
 	unsigned int len = 0;
 	unsigned char* data = bs->GetData(&len);
-	m_bsData->Write(data, len);
+	m_bsData.Write(data, len);
 }
 
-ByteStream& Packet::GetData() const
+ByteStream& Packet::GetData()
 {
-	return m_bsData->Copy();
+	return m_bsData;
 }
 
 void Packet::SetPacketId(unsigned char packet_id)

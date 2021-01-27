@@ -1,41 +1,60 @@
 #pragma once
 #include "main.h"
-#include "Buffer.h"
+
+#define SAFE_FREE(x) if(x != NULL) free(x) ; x = NULL
+#define SAFE_DELETE(x) if(x != NULL) delete x; x = NULL
+#define SAFE_MEMCPY(dest, src, size) if(dest && src) memcpy(dest, src, size)
 
 class ByteStream
 {
 public:
 	ByteStream();
 	ByteStream(unsigned char* data, unsigned int data_size);
-	template <typename T>
-	ByteStream& Write(T data, unsigned int data_size = sizeof(T));
-	ByteStream& Write(unsigned char* data, unsigned int data_size);
-	ByteStream& Write(const char* data, unsigned int data_size);
-	template <typename T>
-	void Read(T& var, unsigned int var_size = sizeof(T));
-	void Read(unsigned char** var, unsigned int len);
-	void Read(unsigned char* var, unsigned int len);
-	virtual ~ByteStream();
-	unsigned char* GetData(unsigned int* len);
-	void ResetReadPointer();
+	template <class R>
+	void Read(R& data);
+	void Read(char* data, int len);
+	void Read(byte* data, int len);
+	template <class T>
+	void Write(T data);
+	void Write(byte* data, int len);
+	void Write(BigInt num);
+	void Write(const char* text, int len = -1);
 	void Clear();
-	ByteStream& Copy();
 	unsigned int GetLength();
+	byte* GetData(unsigned int OUT* len);
+	ByteStream& Copy();
+	void ResetWritePointer();
+	void ResetReadPointer();
 private:
-	Buffer<SafeAppender, SafeReader>* m_Buffer;
-	unsigned int m_uiReadPointer;
+	byte* m_Buffer;
+	int m_iReadPointer;
+	int m_iWritePointer;
+	int m_iLength; // allocated buffer length
 };
 
-template<typename T>
-inline ByteStream& ByteStream::Write(T data, unsigned int data_size)
+template<class R>
+inline void ByteStream::Read(R& data)
 {
-	m_Buffer->Append<T>(data, -1, data_size);
-	return *this;
+	for (int end = m_iReadPointer + sizeof(R), k = 0; m_iReadPointer < end; m_iReadPointer++, k++) {
+		*(unsigned char*)((size_t)(void*)&data + k) = m_Buffer[m_iReadPointer];
+	}
 }
 
-template<typename T>
-inline void ByteStream::Read(T& var, unsigned int var_size)
+template<class T>
+inline void ByteStream::Write(T data)
 {
-	m_Buffer->Read(var, m_uiReadPointer, var_size);
-	m_uiReadPointer += var_size;
+	if (!m_Buffer) {
+		m_Buffer = (byte*)malloc(sizeof(T));
+		m_iLength = sizeof(T);
+	}
+	else {
+		unsigned int free_space = m_iLength - m_iWritePointer;
+		if (free_space < sizeof(T)) {
+			m_Buffer = (byte*)realloc(m_Buffer, m_iLength + (sizeof(T) - free_space));
+		}
+		m_iLength = m_iLength + (sizeof(T) - free_space);
+	}
+	for (int end = m_iWritePointer + sizeof(T), k = 0; m_iWritePointer < end; m_iWritePointer++) {
+		m_Buffer[m_iWritePointer] = ((unsigned char*)&data)[k++];
+	}
 }

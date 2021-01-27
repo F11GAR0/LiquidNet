@@ -22,17 +22,24 @@
 
 struct RCAData {
 	bool initialized;
-	unsigned long long public_num1;
-	unsigned long long public_num2;
-	unsigned long long private_key;
-	unsigned long long endkey;
+	int p;
+	BigInt g;
+	int private_num;
+	BigInt public_srv;
+	BigInt public_cli;
+	BigInt end_key;
+	RCAData() {
+		initialized = false;
+		p = -1;
+		private_num = -1;
+	}
 };
 
 class UdpTraficGuide;
 
 typedef void (*RecieveCallback)(UdpTraficGuide*, Packet**);
 
-void TransformBs(ByteStream* bs, unsigned long long key);
+void TransformBs(ByteStream* bs, BigInt key);
 
 class UdpTraficGuide
 {

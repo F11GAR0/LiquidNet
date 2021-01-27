@@ -8,7 +8,7 @@ UdpClient::~UdpClient() {
 	{
 		ByteStream bs;
 		bs.Write((BYTE)eSystemClientPacket::ID_DISCONNECT);
-		TransformBs(&bs, m_ClientRCAData.endkey);
+		TransformBs(&bs, m_ClientRCAData.end_key);
 		//unsafe!
 		this->GetSocketLayerInstance()->Send(this->GetSocket(), &bs, this->GetDestAddr(), this->m_usPort, true);
 	}
@@ -25,25 +25,31 @@ bool UdpClient::Connect(const char* ip, unsigned int timeout) {
 		Send(&initial);
 		while (!m_ClientRCAData.initialized) {
 			Packet* p;
-			int tries = 35;
+			int tries = 100;
 			while ((p = Recieve()) == nullptr) {
 				tries--;
-				if (tries < 0)
+				if (tries < 0) {
+					std::cout << "timeout";
 					return false;
+				}
 				Sleep(10);
 			}
 			switch (p->GetPacketId()) {
 			case eSystemServerPacket::ID_ACCEPT_CONNECT:
 			{
 #ifdef SECURITY
-				m_ClientRCAData.public_num1 = gen_prime(rand() % 10 + 45, rand() % 30 + 55);
-				m_ClientRCAData.public_num2 = gen_prime(3, rand() % 30 + 15);
-				m_ClientRCAData.private_key = rand() % 10 + 3;
+				m_ClientRCAData.p = gen_prime(rand() % 10 + 45, rand() % 30 + 55);
+				m_ClientRCAData.g = gen_prime(3, rand() % 30 + 15);
+				m_ClientRCAData.private_num = rand() % 10 + 3;
+				m_ClientRCAData.public_cli = pow(m_ClientRCAData.g, m_ClientRCAData.private_num) % m_ClientRCAData.p;
 				ByteStream bs;
 				bs.Write((BYTE)eSystemClientPacket::ID_RSA_PUBLIC_NUMBERS);
-				bs.Write((unsigned long long)m_ClientRCAData.public_num1);
-				bs.Write((unsigned long long)m_ClientRCAData.public_num2);
-				bs.Write((unsigned long long)long_pow(m_ClientRCAData.public_num2, m_ClientRCAData.private_key) % m_ClientRCAData.public_num1);
+				bs.Write(m_ClientRCAData.p);
+				bs.Write((int)m_ClientRCAData.g.to_string().length());
+				bs.Write(m_ClientRCAData.g);
+				bs.Write((int)m_ClientRCAData.public_cli.to_string().length());
+				bs.Write(m_ClientRCAData.public_cli);
+				//std::cout << GetByteStreamStr(&bs) << std::endl;
 				Send(&bs);
 				break;
 #else
@@ -56,14 +62,109 @@ bool UdpClient::Connect(const char* ip, unsigned int timeout) {
 			}
 #ifdef SECURITY
 			case eSystemServerPacket::ID_RSA_PUBLIC_KEY: {
-				unsigned long long public_key;
-				p->GetData().Read(public_key);
+
+				int digits;
+				p->GetData().Read(digits);
+				byte* data = (byte*)malloc(digits + 1);
+				p->GetData().Read(data, digits);
+				data[digits] = '\0';
+
+				m_ClientRCAData.public_srv = BigInt(std::string((char*)data));
+				m_ClientRCAData.end_key = pow(m_ClientRCAData.public_srv, m_ClientRCAData.private_num) % m_ClientRCAData.p;
+
 				ByteStream bs;
 				bs.Write((BYTE)eSystemClientPacket::ID_RSA_END_TRANSMITTION);
 				//unsafe!
 				this->GetSocketLayerInstance()->Send(this->GetSocket(), &bs, this->GetDestAddr(), this->m_usPort, true);
-				m_ClientRCAData.endkey = long_pow(public_key, m_ClientRCAData.private_key) % m_ClientRCAData.public_num1;
+
 				m_ClientRCAData.initialized = true;
+
+				this->GetRCAMap()->insert(std::pair<size_t, RCAData>(CLIENT_HASH, m_ClientRCAData));
+				delete p;
+				return true;
+			}
+#endif
+			case eSystemServerPacket::ID_DENY_CONNECT: // what a shame(((
+				delete p;
+				return false;
+			}
+			delete p; //deallocate...
+		}
+	}
+	return false;
+}
+
+bool UdpClient::Connect(const char* ip, unsigned int timeout, int p_, BigInt g, int private_num) {
+	Initialize(ip, m_usPort, timeout);
+	if (this->GetSocketLayerInstance()->Connect(this->GetSocket(), ip, m_usPort)) {
+		ByteStream initial;
+		initial.Write((BYTE)eSystemClientPacket::ID_REQUEST_CONNECT);
+		Send(&initial);
+		while (!m_ClientRCAData.initialized) {
+			Packet* p;
+			int tries = 100;
+			while ((p = Recieve()) == nullptr) {
+				tries--;
+				if (tries < 0) {
+					std::cout << "timeout";
+					return false;
+				}
+				Sleep(10);
+			}
+			switch (p->GetPacketId()) {
+			case eSystemServerPacket::ID_ACCEPT_CONNECT:
+			{
+#ifdef SECURITY
+				m_ClientRCAData.p = p_;
+				m_ClientRCAData.g = g;
+				m_ClientRCAData.private_num = private_num;
+				m_ClientRCAData.public_cli = pow(m_ClientRCAData.g, m_ClientRCAData.private_num) % m_ClientRCAData.p;
+				ByteStream bs;
+				bs.Write((BYTE)eSystemClientPacket::ID_RSA_PUBLIC_NUMBERS);
+				bs.Write(m_ClientRCAData.p);
+				bs.Write((int)m_ClientRCAData.g.to_string().length());
+				bs.Write(m_ClientRCAData.g);
+				bs.Write((int)m_ClientRCAData.public_cli.to_string().length());
+				bs.Write(m_ClientRCAData.public_cli);
+				//std::cout << GetByteStreamStr(&bs) << std::endl;
+				Send(&bs);
+				break;
+#else
+				this->GetRCAMap()->insert(std::pair<size_t, RCAData>(CLIENT_HASH, m_ClientRCAData));
+				m_ClientRCAData.endkey = -1;
+				m_ClientRCAData.initialized = true;
+				delete p;
+				return true;
+#endif
+			}
+#ifdef SECURITY
+			case eSystemServerPacket::ID_RSA_PUBLIC_KEY: {
+
+				int digits;
+				p->GetData().Read(digits);
+				byte* data = (byte*)malloc(digits + 1);
+				p->GetData().Read(data, digits);
+				data[digits] = '\0';
+
+				m_ClientRCAData.public_srv = BigInt(std::string((char*)data));
+				m_ClientRCAData.end_key = pow(m_ClientRCAData.public_srv, m_ClientRCAData.private_num) % m_ClientRCAData.p;
+
+				ByteStream bs;
+				bs.Write((BYTE)eSystemClientPacket::ID_RSA_END_TRANSMITTION);
+				//unsafe!
+				this->GetSocketLayerInstance()->Send(this->GetSocket(), &bs, this->GetDestAddr(), this->m_usPort, true);
+
+				m_ClientRCAData.initialized = true;
+
+				std::cout << "Security Data: " << std::endl;
+				std::cout << "p: " << m_ClientRCAData.p << std::endl;
+				std::cout << "g: " << m_ClientRCAData.g << std::endl;
+				std::cout << "private_number: " << m_ClientRCAData.private_num << std::endl;
+				std::cout << "public client: " << m_ClientRCAData.public_cli << std::endl;
+				std::cout << "public server: " << m_ClientRCAData.public_srv << std::endl;
+				std::cout << "end key: " << m_ClientRCAData.end_key << std::endl;
+
+
 				this->GetRCAMap()->insert(std::pair<size_t, RCAData>(CLIENT_HASH, m_ClientRCAData));
 				delete p;
 				return true;
@@ -99,6 +200,7 @@ Packet* UdpClient::Recieve()
 
 void RSASrvCallback(UdpTraficGuide* self, Packet** packet) {
 	Packet* p = *packet;
+	//printf("received packet: %d\n", p->GetPacketId());
 	switch (p->GetPacketId()) {
 
 	case eSystemClientPacket::ID_REQUEST_CONNECT:
@@ -138,18 +240,31 @@ void RSASrvCallback(UdpTraficGuide* self, Packet** packet) {
 #ifdef SECURITY
 	case eSystemClientPacket::ID_RSA_PUBLIC_NUMBERS:
 		if (self->GetRCAMap()->find(p->GetSenderHash()) != self->GetRCAMap()->end()) {
-			unsigned long long n1, n2, clipublic;
-			auto bsdata = p->GetData();
-			bsdata.Read(n1);
-			bsdata.Read(n2);
-			bsdata.Read(clipublic);
-			self->GetRCAMap()->at(p->GetSenderHash()).public_num1 = n1;
-			self->GetRCAMap()->at(p->GetSenderHash()).public_num2 = n2;
-			self->GetRCAMap()->at(p->GetSenderHash()).private_key = rand() % 10 + 3;
-			self->GetRCAMap()->at(p->GetSenderHash()).endkey = long_pow(clipublic, self->GetRCAMap()->at(p->GetSenderHash()).private_key) % self->GetRCAMap()->at(p->GetSenderHash()).public_num1;
-			unsigned long long public_key = long_pow(n2, self->GetRCAMap()->at(p->GetSenderHash()).private_key) % n1;
+			stConnect connect;
+			p->GetData().Read(connect.p);
+
+			p->GetData().Read(connect.len_g);
+			connect.g = (byte*)malloc(connect.len_g + 1);
+			p->GetData().Read(connect.g, connect.len_g);
+			connect.g[connect.len_g] = '\0';
+
+			p->GetData().Read(connect.len_public_cli);
+			connect.public_cli = (byte*)malloc(connect.len_public_cli);
+			p->GetData().Read(connect.public_cli, connect.len_public_cli);
+			connect.public_cli[connect.len_public_cli] = '\0';
+
+			self->GetRCAMap()->at(p->GetSenderHash()).p = connect.p;
+			self->GetRCAMap()->at(p->GetSenderHash()).g = BigInt(std::string((char*)connect.g));
+			self->GetRCAMap()->at(p->GetSenderHash()).public_cli = BigInt(std::string((char*)connect.public_cli));
+			self->GetRCAMap()->at(p->GetSenderHash()).private_num = rand() % 46 + 3;
+
+			self->GetRCAMap()->at(p->GetSenderHash()).end_key = pow(self->GetRCAMap()->at(p->GetSenderHash()).public_cli, self->GetRCAMap()->at(p->GetSenderHash()).private_num) % connect.p;
+			//self->GetRCAMap()->at(p->GetSenderHash()).initialized = true;
+
+			BigInt public_key = pow(self->GetRCAMap()->at(p->GetSenderHash()).g, self->GetRCAMap()->at(p->GetSenderHash()).private_num) % connect.p;
 			ByteStream bs;
 			bs.Write((BYTE)eSystemServerPacket::ID_RSA_PUBLIC_KEY);
+			bs.Write((int)public_key.to_string().length());
 			bs.Write(public_key);
 			self->SendTo(p->GetSenderInfo().first, p->GetSenderInfo().second, true, &bs);
 		}

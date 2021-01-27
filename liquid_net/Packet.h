@@ -11,7 +11,7 @@ public:
 	Packet(ByteStream* bs, unsigned long sender, unsigned short sender_port);
 	Packet* Copy();
 	void SetData(ByteStream* bs);
-	ByteStream& GetData() const;
+	ByteStream& GetData();
 	void SetPacketId(unsigned char packet_id);
 	unsigned char GetPacketId() const;
 	size_t GetSenderHash();
@@ -22,7 +22,7 @@ public:
 	~Packet();
 private:
 	unsigned char m_bPacketId;
-	ByteStream* m_bsData;
+	ByteStream m_bsData;
 	unsigned long m_ulSender;
 	unsigned short m_usSenderPort;
 	bool m_bAbsolutePort;
